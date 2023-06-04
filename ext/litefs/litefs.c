@@ -7,6 +7,11 @@
 // LiteFS lock offsets
 const int HaltByte = 72;
 
+// Use Open File Decription Locks, if available
+#ifndef F_OFD_SETLKW
+#define F_OFD_SETLKW F_SETLKW
+#endif
+
 // Halt locks the HALT lock on the file handle to the LiteFS database lock file.
 // This causes writes to be halted on the primary node so that this replica can
 // perform writes until Unhalt() is invoked.
@@ -28,7 +33,7 @@ static VALUE litefs_halt(VALUE self, VALUE filenum) {
   lock.l_whence  = SEEK_SET;
   lock.l_len     = 1; 
 
-  int rc = fcntl(fd, F_SETLKW, &lock);
+  int rc = fcntl(fd, F_OFD_SETLKW, &lock);
 
   return INT2NUM(rc);
 }
@@ -53,7 +58,7 @@ static VALUE litefs_unhalt(VALUE self, VALUE filenum) {
   lock.l_whence  = SEEK_SET;
   lock.l_len     = 1; 
 
-  int rc = fcntl(fd, F_SETLKW, &lock);
+  int rc = fcntl(fd, F_OFD_SETLKW, &lock);
 
   return INT2NUM(rc);
 }
